@@ -8,7 +8,7 @@ import (
 
 func main() {
 	if len(os.Args) < 3 {
-		fmt.Print("error: not enough arguments. (want #hexcol #hexcol)")
+		fmt.Print("error: not enough arguments. (want #hexcol #hexcol)\n")
 		os.Exit(1)
 	}
 

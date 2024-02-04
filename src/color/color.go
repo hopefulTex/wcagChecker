@@ -16,6 +16,9 @@ var (
 	tagWidth   int            = 8
 	blockStyle lipgloss.Style = lipgloss.NewStyle().
 			Width(tagWidth).Height(tagWidth / 2).
+			Align(lipgloss.Center).
+			PaddingTop(1).PaddingBottom(2).
+			PaddingRight(2).
 		// Border(lipgloss.HiddenBorder()).
 		SetString(" ")
 	borderStyle lipgloss.Style = lipgloss.NewStyle().
@@ -52,7 +55,16 @@ type Color struct {
 	hex   string
 }
 
+func (c Color) Lipgloss() lipgloss.Color {
+	return lipgloss.Color(c.hex)
+}
+
 func FromHex(hex string) (Color, error) {
+	// ironically, disable accessibility features
+	// renderer := lipgloss.DefaultRenderer()
+	// renderer.SetHasDarkBackground(true)
+	// blockStyle = blockStyle.Renderer(renderer)
+
 	var err error
 	var tmp int64
 	color := Color{}
@@ -123,13 +135,30 @@ func (c Color) TagView() string {
 	return borderStyle.Render(view.String())
 }
 
+func (c Color) TextTagView(color Color) string {
+	var view strings.Builder
+
+	blk := blockStyle.
+		Background(lipgloss.Color(c.hex)).
+		// AlignHorizontal(lipgloss.Center).
+		Foreground(color.Lipgloss())
+
+	view.WriteString(blk.Render("Text"))
+	view.WriteRune('\n')
+	view.WriteString(centerText.Render(c.hex))
+
+	return borderStyle.Render(view.String())
+}
+
 func ComplianceView(first, last Color) string {
 	var view string
 
 	bStyle := borderStyle.Height(2).AlignHorizontal(lipgloss.Center)
 
-	c1 := first.TagView()
-	c2 := last.TagView()
+	// c1 := first.TagView()
+	// c2 := last.TagView()
+	c1 := first.TextTagView(last)
+	c2 := last.TextTagView(first)
 
 	view = lipgloss.JoinHorizontal(lipgloss.Center, c1, c2)
 
