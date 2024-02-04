@@ -62,17 +62,22 @@ func ComplianceView(first, last Color) string {
 	view = lipgloss.JoinHorizontal(lipgloss.Center, c1, c2)
 
 	score, contrast := Compliance(first, last)
-	contrastStr := fmt.Sprintf("%f", contrast)
-	index := strings.IndexRune(contrastStr, '.')
-	contrastStr = contrastStr[0 : index+2]
+	contrastStr := ContrastString(contrast)
 
 	newLine := strings.Index(view, "\n")
 	if newLine == -1 {
 		newLine = len(view)
 	}
 
-	text := fmt.Sprintf("%s\n%s", score.ToString(), contrastStr)
+	text := fmt.Sprintf("%s\n%s", score.String(), contrastStr)
 	bStyle = bStyle.Width(ansi.PrintableRuneWidth(view[:newLine-1]) - 3).Align(lipgloss.Center)
 
 	return bStyle.Render(text) + "\n" + view
+}
+
+func ContrastString(contrast float64) string {
+	contrastStr := fmt.Sprintf("%f", contrast)
+	index := strings.IndexRune(contrastStr, '.')
+	contrastStr = contrastStr[0 : index+2]
+	return contrastStr
 }

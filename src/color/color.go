@@ -19,7 +19,7 @@ const (
 	AAA
 )
 
-func (s Score) ToString() string {
+func (s Score) String() string {
 	if s == AAA {
 		return "AAA"
 	}

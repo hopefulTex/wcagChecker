@@ -23,5 +23,14 @@ func main() {
 		os.Exit(1)
 	}
 
-	fmt.Println(Color.ComplianceView(first, last))
+	output, _ := os.Stdout.Stat()
+
+	if (output.Mode() & os.ModeCharDevice) == os.ModeCharDevice {
+		fmt.Println(Color.ComplianceView(first, last))
+	} else {
+		score, contrast := Color.Compliance(first, last)
+		contrastStr := Color.ContrastString(contrast)
+		fmt.Printf("%s: %s", score.String(), contrastStr)
+	}
+
 }
