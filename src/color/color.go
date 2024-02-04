@@ -1,5 +1,9 @@
 package color
 
+// w3 saves the day again
+// maths come from..
+// https://www.w3.org/TR/WCAG20/relative-luminance.xml
+
 import (
 	"fmt"
 	"math"
@@ -84,6 +88,7 @@ func Contrast(first, last Color) float64 {
 	var L1 float64 = first.Luminance()
 	var L2 float64 = last.Luminance()
 
+	// Contrast is measured as ratio [1 < contrast < 21]
 	if L1 < L2 {
 		tmp = L1
 		L1 = L2
@@ -108,6 +113,7 @@ func Compliance(first, last Color) (Score, float64) {
 }
 
 func Normalize(color float64) float64 {
+	// I don't know why this equation works, thank you biology nerds
 	if color <= 0.03928 {
 		color /= 12.92
 	} else {
@@ -124,10 +130,14 @@ func (c Color) Luminance() float64 {
 	var g float64
 	var b float64
 
+	// essentially, getting the 'fullness' of each color [0:255]
 	r = float64(c.red) / 255.0
 	g = float64(c.green) / 255.0
 	b = float64(c.blue) / 255.0
 
+	// These are values derived by people way smarter than me
+	// I assume it's due to humans perceiving red more intensely..
+	// .. so it needs less of a boost
 	lum += 0.2126 * r
 	lum += 0.7152 * g
 	lum += 0.0722 * b
