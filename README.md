@@ -5,7 +5,9 @@ Compare colors and ensure that they're readable for all of your users
 Some terminals need `#`'s wrapped in quotes, so you can use them at your discretion
 (binary name tbd)
 `wcagChecker #hexcolor #hexcolor`
+
 `wcagChecker "#hexcolor" "#hexcolor"`
+
 `wcagChecker hexcolor hexcolor`
 
 ### Example
