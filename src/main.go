@@ -24,13 +24,4 @@ func main() {
 	}
 
 	fmt.Println(Color.ComplianceView(first, last))
-	// score, contrast := Color.Compliance(first, last)
-
-	// contrastStr := fmt.Sprintf("%f", contrast)
-	// index := strings.IndexRune(contrastStr, '.')
-	// contrastStr = contrastStr[0 : index+2]
-
-	// fmt.Printf("Score~     %s\n", score.ToString())
-	// fmt.Printf("Contrast~  %s:1\n", contrastStr)
-
 }

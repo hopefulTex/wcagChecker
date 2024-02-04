@@ -5,28 +5,14 @@ import (
 	"math"
 	"strconv"
 	"strings"
-
-	"github.com/charmbracelet/lipgloss"
-	"github.com/muesli/ansi"
 )
 
 type Score int
 
-var (
-	tagWidth   int            = 8
-	blockStyle lipgloss.Style = lipgloss.NewStyle().
-			Width(tagWidth).Height(tagWidth / 2).
-			Align(lipgloss.Center).
-			PaddingTop(1).PaddingBottom(2).
-			PaddingRight(2).
-		// Border(lipgloss.HiddenBorder()).
-		SetString(" ")
-	borderStyle lipgloss.Style = lipgloss.NewStyle().
-			Border(lipgloss.RoundedBorder())
-	centerText lipgloss.Style = lipgloss.NewStyle().
-			Width(tagWidth).Height(1).
-		// Border(lipgloss.HiddenBorder()).
-		Align(lipgloss.Center)
+const (
+	FAILED Score = iota
+	AA
+	AAA
 )
 
 func (s Score) ToString() string {
@@ -42,12 +28,6 @@ func (s Score) ToString() string {
 	return "error converting Score to string"
 }
 
-const (
-	FAILED Score = iota
-	AA
-	AAA
-)
-
 type Color struct {
 	red   int
 	green int
@@ -55,16 +35,7 @@ type Color struct {
 	hex   string
 }
 
-func (c Color) Lipgloss() lipgloss.Color {
-	return lipgloss.Color(c.hex)
-}
-
 func FromHex(hex string) (Color, error) {
-	// ironically, disable accessibility features
-	// renderer := lipgloss.DefaultRenderer()
-	// renderer.SetHasDarkBackground(true)
-	// blockStyle = blockStyle.Renderer(renderer)
-
 	var err error
 	var tmp int64
 	color := Color{}
@@ -120,62 +91,8 @@ func Contrast(first, last Color) float64 {
 	}
 
 	contrast = (L1 + 0.05) / (L2 + 0.05)
-	//contrast = roundToPlace(contrast, 2)
 
 	return contrast
-}
-
-func (c Color) TagView() string {
-	var view strings.Builder
-	blk := blockStyle.Background(lipgloss.Color(c.hex))
-	view.WriteString(blk.String())
-	view.WriteRune('\n')
-	view.WriteString(centerText.Render(c.hex))
-
-	return borderStyle.Render(view.String())
-}
-
-func (c Color) TextTagView(color Color) string {
-	var view strings.Builder
-
-	blk := blockStyle.
-		Background(lipgloss.Color(c.hex)).
-		// AlignHorizontal(lipgloss.Center).
-		Foreground(color.Lipgloss())
-
-	view.WriteString(blk.Render("Text"))
-	view.WriteRune('\n')
-	view.WriteString(centerText.Render(c.hex))
-
-	return borderStyle.Render(view.String())
-}
-
-func ComplianceView(first, last Color) string {
-	var view string
-
-	bStyle := borderStyle.Height(2).AlignHorizontal(lipgloss.Center)
-
-	// c1 := first.TagView()
-	// c2 := last.TagView()
-	c1 := first.TextTagView(last)
-	c2 := last.TextTagView(first)
-
-	view = lipgloss.JoinHorizontal(lipgloss.Center, c1, c2)
-
-	score, contrast := Compliance(first, last)
-	contrastStr := fmt.Sprintf("%f", contrast)
-	index := strings.IndexRune(contrastStr, '.')
-	contrastStr = contrastStr[0 : index+2]
-
-	newLine := strings.Index(view, "\n")
-	if newLine == -1 {
-		newLine = len(view)
-	}
-
-	text := fmt.Sprintf("%s\n%s", score.ToString(), contrastStr)
-	bStyle = bStyle.Width(ansi.PrintableRuneWidth(view[:newLine-1]) - 3).Align(lipgloss.Center)
-
-	return bStyle.Render(text) + "\n" + view
 }
 
 func Compliance(first, last Color) (Score, float64) {
@@ -188,7 +105,6 @@ func Compliance(first, last Color) (Score, float64) {
 	} else {
 		return FAILED, contrast
 	}
-
 }
 
 func Normalize(color float64) float64 {
