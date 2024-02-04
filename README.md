@@ -20,3 +20,7 @@ Some terminals need `#`'s wrapped in quotes, so you can use them at your discret
 `wcagChecker F09240 a948d2`
 
 <img width="600" alt="A GIF showing the command above" src="https://vhs.charm.sh/vhs-rBmraAfLw509vQzzrbyao.gif">
+
+## Building
+
+Just a hop, skip, and a `cd src && go build .` and you're off to the races!
