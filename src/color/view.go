@@ -93,6 +93,12 @@ func ComplianceView(first, last Color) string {
 	return bStyle.Render(text) + "\n" + view
 }
 
+func ComplianceString(first, last Color) string {
+	score, contrast := Compliance(first, last)
+	contrastStr := ContrastString(contrast)
+	return fmt.Sprintf("%s: %s", score.String(), contrastStr)
+}
+
 func ContrastString(contrast float64) string {
 	contrastStr := fmt.Sprintf("%f", contrast)
 	index := strings.IndexRune(contrastStr, '.')

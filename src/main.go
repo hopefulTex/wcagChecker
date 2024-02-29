@@ -3,34 +3,82 @@ package main
 import (
 	"fmt"
 	"os"
-	Color "wcagChecker/color"
+	"time"
+
+	"github.com/charmbracelet/lipgloss"
+	"github.com/mattn/go-isatty"
+)
+
+const version string = "v1.0.0"
+const helpString string = "compare two colors\nusage:\twcagChecker #hexColor #hexColor\n--file\tcompare base color to those in a file\nusage: --file filename #hexColor"
+
+const (
+	DUO_MODE = iota
+	LIST_MODE
+	// GENERATE_MODE
 )
 
 func main() {
 	if len(os.Args) < 3 {
-		fmt.Print("error: not enough arguments. (want #hexcol #hexcol)\n")
+		fmt.Print("error: not enough arguments.\n")
+		fmt.Println(helpString)
 		os.Exit(1)
 	}
 
-	first, err := Color.FromHex(os.Args[1])
-	if err != nil {
-		fmt.Printf("error: %s\n", err.Error())
+	var mode int = DUO_MODE
+	var output string
+	var err error
+
+	switch os.Args[1] {
+	case "--version":
+		fmt.Println(version)
 		os.Exit(1)
-	}
-	last, err := Color.FromHex(os.Args[2])
-	if err != nil {
-		fmt.Printf("error: %s\n", err.Error())
+	case "--help":
+		fmt.Println(helpString)
 		os.Exit(1)
+	case "--file":
+		if len(os.Args) < 4 {
+			fmt.Print("error: no file or base color specified.\n")
+			fmt.Print("(want --file filename #hexcolor)\n")
+			os.Exit(1)
+		}
+		mode = LIST_MODE
 	}
 
-	output, _ := os.Stdout.Stat()
+	// Output to terminal or to file/pipe?
+	isTTY := isatty.IsTerminal(os.Stdout.Fd())
 
-	if (output.Mode() & os.ModeCharDevice) == os.ModeCharDevice {
-		fmt.Println(Color.ComplianceView(first, last))
-	} else {
-		score, contrast := Color.Compliance(first, last)
-		contrastStr := Color.ContrastString(contrast)
-		fmt.Printf("%s: %s", score.String(), contrastStr)
+	switch mode {
+	case DUO_MODE:
+		output, err = duo(isTTY, os.Args[1], os.Args[2])
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "error: %s\n", err.Error())
+			fmt.Println(output)
+			os.Exit(1)
+		}
+	case LIST_MODE:
+		if isTTY {
+			argIndex := 3
+			// give a chance to ctrl+c out of a long list
+			if os.Args[2] != "--no-wait" {
+				style := lipgloss.NewStyle().
+					Background(lipgloss.Color("#EE6666")).
+					SetString("WARNING: outputting to console\nFor longer lists, piping to a file is suggested")
+
+				fmt.Fprint(os.Stderr, style.String()+"\n")
+				time.Sleep(3 * time.Second)
+				argIndex--
+			}
+			output, err = list(os.Args[argIndex], os.Args[argIndex+1])
+		}
+
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "error: %s\n", err.Error())
+			fmt.Println(output)
+			os.Exit(1)
+		}
 	}
+
+	fmt.Println(output)
 
 }
