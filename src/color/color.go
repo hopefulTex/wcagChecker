@@ -71,7 +71,7 @@ func FromHex(hex string) (Color, error) {
 		color.hex = "#" + hex
 	}
 	if len(hex) > 6 {
-		return color, fmt.Errorf("hexadecimal colors are limited to 6 places")
+		return color, fmt.Errorf("hexadecimal colors are limited to 6 places\n %s", hex)
 	}
 
 	for len(hex) < 6 {

@@ -57,8 +57,8 @@ func main() {
 			os.Exit(1)
 		}
 	case LIST_MODE:
+		argIndex := 3
 		if isTTY {
-			argIndex := 3
 			// give a chance to ctrl+c out of a long list
 			if os.Args[2] != "--no-wait" {
 				style := lipgloss.NewStyle().
@@ -69,9 +69,10 @@ func main() {
 				time.Sleep(3 * time.Second)
 				argIndex--
 			}
-			output, err = list(os.Args[argIndex], os.Args[argIndex+1])
+		} else {
+			argIndex--
 		}
-
+		output, err = list(os.Args[argIndex], os.Args[argIndex+1])
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "error: %s\n", err.Error())
 			fmt.Println(output)
