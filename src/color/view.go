@@ -23,16 +23,34 @@ var (
 			Align(lipgloss.Center)
 )
 
+func (s Score) String() string {
+	if s == AAA {
+		return "AAA"
+	}
+	if s == AA {
+		return "AA"
+	}
+	if s == FAILED {
+		return "FAILED"
+	}
+	return "error converting Score to string"
+}
+
+func (c Color) String() string {
+	c.hex = fmt.Sprintf("#%02X%02X%02X", c.red, c.green, c.blue)
+	return c.hex
+}
+
 func (c Color) Lipgloss() lipgloss.Color {
-	return lipgloss.Color(c.hex)
+	return lipgloss.Color(c.String())
 }
 
 func (c Color) TagView() string {
 	var view strings.Builder
-	blk := blockStyle.Background(lipgloss.Color(c.hex))
+	blk := blockStyle.Background(c.Lipgloss())
 	view.WriteString(blk.String())
 	view.WriteRune('\n')
-	view.WriteString(centerText.Render(c.hex))
+	view.WriteString(centerText.Render(c.String()))
 
 	return borderStyle.Render(view.String())
 }
@@ -41,12 +59,12 @@ func (c Color) TextTagView(color Color) string {
 	var view strings.Builder
 
 	blk := blockStyle.
-		Background(lipgloss.Color(c.hex)).
+		Background(c.Lipgloss()).
 		Foreground(color.Lipgloss())
 
 	view.WriteString(blk.Render("Text"))
 	view.WriteRune('\n')
-	view.WriteString(centerText.Render(c.hex))
+	view.WriteString(centerText.Render(c.String()))
 
 	return borderStyle.Render(view.String())
 }

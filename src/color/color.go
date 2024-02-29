@@ -19,24 +19,45 @@ const (
 	AAA
 )
 
-func (s Score) String() string {
-	if s == AAA {
-		return "AAA"
-	}
-	if s == AA {
-		return "AA"
-	}
-	if s == FAILED {
-		return "FAILED"
-	}
-	return "error converting Score to string"
-}
-
 type Color struct {
 	red   int
 	green int
 	blue  int
 	hex   string
+}
+
+func (c *Color) SetR(red int) {
+	c.red = clamp(0, 255, red)
+}
+
+func (c *Color) SetG(green int) {
+	c.green = clamp(0, 255, green)
+}
+
+func (c *Color) SetB(blue int) {
+	c.blue = clamp(0, 255, blue)
+}
+
+func (c Color) Luminance() float64 {
+	// var lum float64 = 0.0
+	var r float64 = float64(c.red)
+	var g float64 = float64(c.green)
+	var b float64 = float64(c.blue)
+
+	// essentially, getting the 'fullness' of each color [0:255]
+	// r = float64(c.red) / 255.0
+	// g = float64(c.green) / 255.0
+	// b = float64(c.blue) / 255.0
+
+	return (r*0.00083372549 + g*0.002804705882 + b*0.00831372549)
+	// These are values derived by people way smarter than me
+	// I assume it's due to humans perceiving red more intensely..
+	// .. so it needs less of a boost
+	// lum += 0.2126 * r
+	// lum += 0.7152 * g
+	// lum += 0.0722 * b
+
+	// return lum
 }
 
 func FromHex(hex string) (Color, error) {
@@ -124,23 +145,25 @@ func Normalize(color float64) float64 {
 	return color
 }
 
-func (c Color) Luminance() float64 {
-	var lum float64 = 0.0
-	var r float64
-	var g float64
-	var b float64
+func CheckRange(goal Score, colors []Color, base Color) []Color {
+	var buf []Color
+	for _, col := range colors {
+		score, _ := Compliance(col, base)
+		if goal == score {
+			buf = append(buf, col)
+		} else if goal == AA && score == AAA {
+			buf = append(buf, col)
+		}
+	}
+	return buf
+}
 
-	// essentially, getting the 'fullness' of each color [0:255]
-	r = float64(c.red) / 255.0
-	g = float64(c.green) / 255.0
-	b = float64(c.blue) / 255.0
-
-	// These are values derived by people way smarter than me
-	// I assume it's due to humans perceiving red more intensely..
-	// .. so it needs less of a boost
-	lum += 0.2126 * r
-	lum += 0.7152 * g
-	lum += 0.0722 * b
-
-	return lum
+func clamp(min, max, num int) int {
+	if num < min {
+		return min
+	}
+	if num > max {
+		return max
+	}
+	return num
 }
